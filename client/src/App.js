@@ -1,12 +1,13 @@
 import React, { Component } from "react";
 import socketIOClient from "socket.io-client";
 import "./App.css";
-import Header from './components/Header'
+import Header from "./components/Header";
 
 class App extends Component {
   state = {
     endpoint: "localhost:8082",
-    connected: 'disconnected',
+    connected: "disconnected",
+    title: "",
     messages: [],
     message: "",
     color: "white",
@@ -15,28 +16,31 @@ class App extends Component {
     users: []
   };
 
-  componentWillMount = () =>{
-    this.socket = socketIOClient(this.state.endpoint)
-    this.socket.on('connect', this.connect)
+  componentWillMount = () => {
+    this.socket = socketIOClient(this.state.endpoint);
+    this.socket.on("connect", this.connect);
 
-    this.socket.on('disconnect', this.disconnect)
+    this.socket.on("disconnect", this.disconnect);
+    this.socket.on("welcome", this.welcome)
+  };
 
+  connect = () => {
+    this.setState({ status: "connected" });
+    console.log("connected: ", this.socket.id);
+  };
+
+  welcome = (serverState ) =>{
+    this.setState({title:serverState.title})
   }
 
-  connect = () =>{
-    this.setState({status:"connected"})
-    console.log('connected: ', this.socket.id)
-  }
-
-  disconnect = () =>{
-    this.setState({status:"disconnected"})
-
-  }
+  disconnect = () => {
+    this.setState({ status: "disconnected" });
+  };
 
   render() {
     return (
       <div className="App">
-        <Header title='new header' status={this.state.status}></Header>
+        <Header title={this.state.title} status={this.state.status}></Header>
       </div>
     );
   }

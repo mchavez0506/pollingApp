@@ -5,6 +5,7 @@ const server = require('http').createServer(app)
 
 const socketIO = require('socket.io')
 const connections = []
+const title = 'Untitled Presentation'
 
 
 app.use(express.static('./public'))
@@ -26,6 +27,9 @@ io.sockets.on('connection', (socket) =>{
         console.log('disconnected: %s sockets remaining', connections.length)
     })
 
+    socket.emit("welcome", {
+        title:title
+    })
 
     connections.push(socket)
     console.log("Connected: %s sockets connected", connections.length)
