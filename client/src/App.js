@@ -1,5 +1,9 @@
 import React, { Component } from "react";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import socketIOClient from "socket.io-client";
+import Audience from "./components/Audience";
+import Speaker from "./components/Speaker";
+import Board from "./components/Board";
 import "./App.css";
 import Header from "./components/Header";
 
@@ -21,7 +25,7 @@ class App extends Component {
     this.socket.on("connect", this.connect);
 
     this.socket.on("disconnect", this.disconnect);
-    this.socket.on("welcome", this.welcome)
+    this.socket.on("welcome", this.welcome);
   };
 
   connect = () => {
@@ -29,9 +33,9 @@ class App extends Component {
     console.log("connected: ", this.socket.id);
   };
 
-  welcome = (serverState ) =>{
-    this.setState({title:serverState.title})
-  }
+  welcome = serverState => {
+    this.setState({ title: serverState.title });
+  };
 
   disconnect = () => {
     this.setState({ status: "disconnected" });
@@ -41,6 +45,12 @@ class App extends Component {
     return (
       <div className="App">
         <Header title={this.state.title} status={this.state.status}></Header>
+
+        <Router>
+          <Route exact path="/" render={(props)=> <Audience {...this.state}/>} />
+          <Route exact path="/board" render={(props)=> <Board {...this.state}/>} />
+          <Route exact path="/speaker" render={(props)=> <Speaker {...this.state}/>} />
+        </Router>
       </div>
     );
   }
