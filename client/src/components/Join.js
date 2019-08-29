@@ -1,10 +1,13 @@
 import React, { Component } from "react";
+import { Link } from 'react-router-dom'
 import Display from "./Display";
+
 
 class Join extends Component {
   state = {
     fullName: ""
   };
+
   handleChange = e => {
     const { name, value } = e.target;
     this.setState({ [name]: value });
@@ -12,6 +15,7 @@ class Join extends Component {
 
   join = () => {
     console.log(this.state.fullName);
+    this.props.emit("join", { name:this.state.fullName})
   };
 
   render() {
@@ -31,6 +35,7 @@ class Join extends Component {
             />
           </div>
           <button type="submit" className=" d-flex btn btn-primary">Join</button>
+          <Link to="/speaker">Join as speaker</Link>
         </form>
         </div>
       </div>

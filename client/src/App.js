@@ -15,20 +15,27 @@ class App extends Component {
     messages: [],
     message: "",
     color: "white",
-    isLoggedIn: false,
-    userName: "",
-    users: []
+    member: {},
+    speaker: {},
+    audience: []
   };
 
   componentWillMount = () => {
     this.socket = socketIOClient(this.state.endpoint);
     this.socket.on("connect", this.connect);
-
+    this.socket.on("joined", this.joined)
     this.socket.on("disconnect", this.disconnect);
     this.socket.on("welcome", this.welcome);
+    this.socket.on("audience", this.updateAudience)
   };
 
   connect = () => {
+    const member = sessionStorage.member ? JSON.parse(sessionStorage.member) : null
+
+    if(member){
+      this.emit("join", member)
+    }
+
     this.setState({ status: "connected" });
     console.log("connected: ", this.socket.id);
   };
@@ -36,6 +43,19 @@ class App extends Component {
   welcome = serverState => {
     this.setState({ title: serverState.title });
   };
+
+  joined = (member) =>{
+    sessionStorage.member = JSON.stringify(member)
+    this.setState({member})
+  }
+
+  updateAudience = (newAudience) =>{
+    this.setState({audience:newAudience})
+  }
+
+  emit = (eventName, payload) =>{
+    this.socket.emit(eventName,payload)
+  }
 
   disconnect = () => {
     this.setState({ status: "disconnected" });
@@ -47,9 +67,9 @@ class App extends Component {
         <Header title={this.state.title} status={this.state.status}></Header>
 
         <Router>
-          <Route exact path="/" render={(props)=> <Audience {...this.state}/>} />
+          <Route exact path="/" render={(props)=> <Audience emit={this.emit} {...this.state}/>} />
           <Route exact path="/board" render={(props)=> <Board {...this.state}/>} />
-          <Route exact path="/speaker" render={(props)=> <Speaker {...this.state}/>} />
+          <Route exact path="/speaker" render={(props)=> <Speaker emit={this.emit} {...this.state}/>} />
         </Router>
       </div>
     );
