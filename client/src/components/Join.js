@@ -36,6 +36,8 @@ class Join extends Component {
           </div>
           <button type="submit" className=" d-flex btn btn-primary">Join</button>
           <Link to="/speaker">Join as speaker</Link>
+          <Link to="/board">Go to board</Link>
+
         </form>
         </div>
       </div>

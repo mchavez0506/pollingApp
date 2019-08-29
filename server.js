@@ -85,6 +85,7 @@ io.sockets.on("connection", socket => {
 
   socket.on("answer", function(payload) {
     results[payload.choice]++;
+    io.sockets.emit("results", results)
     console.log(` Answer: ${JSON.stringify(results)}`);
   });
 
@@ -93,7 +94,8 @@ io.sockets.on("connection", socket => {
     audience: audience,
     speaker: speaker.name,
     questions: questions,
-    currentQuestion: currentQuestion
+    currentQuestion: currentQuestion,
+    results:results
   });
 
   connections.push(socket);

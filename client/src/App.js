@@ -20,7 +20,8 @@ class App extends Component {
     audience: [],
     questions: [],
     choices:[],
-    currentQuestion: false
+    currentQuestion: false,
+    results:{}
   };
 
   componentWillMount = () => {
@@ -33,6 +34,7 @@ class App extends Component {
     this.socket.on("start", this.start);
     this.socket.on("end", this.updateState);
     this.socket.on("ask", this.ask);
+    this.socket.on("results", this.updateResults)
   };
 
   componentDidMount(){
@@ -78,6 +80,10 @@ class App extends Component {
     sessionStorage.answer = "";
     this.setState({ currentQuestion: question }, this.setChoices);
   };
+
+  updateResults = results =>{
+    this.setState({results:results})
+  }
 
   emit = (eventName, payload) => {
     this.socket.emit(eventName, payload);
