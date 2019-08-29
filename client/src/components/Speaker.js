@@ -1,5 +1,7 @@
 import React, { Component } from "react";
 import JoinSpeaker from "./JoinSpeaker";
+import Attendance from "./Attendance"
+import Questions from "./Questions"
 
 class Speaker extends Component {
   render() {
@@ -8,8 +10,8 @@ class Speaker extends Component {
         {this.props.status === "connected" ? (
           this.props.member.name && this.props.member.type === "speaker" ? (
             <React.Fragment>
-              <p>Questions</p>
-              <p>Attendance</p>
+              <Questions emit={this.props.emit} questions={this.props.questions}/>
+              <Attendance audience={this.props.audience}/>
             </React.Fragment>
           ) : (
             <React.Fragment>

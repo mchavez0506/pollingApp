@@ -8,7 +8,9 @@ const socketIO = require("socket.io");
 const connections = [];
 let title = "Untitled Presentation";
 const audience = [];
-const speaker = {};
+let speaker = {};
+const questions = require("./questions")
+let currentQuestion = false
 
 app.use(express.static("./public"));
 app.use(express.static("./node_modules/bootstrap/dist"));
@@ -26,7 +28,13 @@ io.sockets.on("connection", socket => {
       audience.splice(audience.indexOf(member), 1);
       io.sockets.emit("audience", audience);
       console.log(`left: ${member.name} audience members: ${audience.length}`);
+    } else if(this.id === speaker.id){
+        console.log(`Speaker ${speaker.name} has left the building... ${title} is over`)
+        speaker = {}
+        title ="Untitled Presentation"
+        io.sockets.emit("end", {speaker:"", title:title})
     }
+
     connections.splice(connections.indexOf(socket), 1);
     socket.disconnect();
     console.log("disconnected: %s sockets remaining", connections.length);
@@ -50,13 +58,22 @@ io.sockets.on("connection", socket => {
     speaker.type = "speaker"
     title = payload.title
     this.emit("joined", speaker)
+    io.sockets.emit("start", {title: title, speaker:speaker.name})
     console.log(`Presentation started: ${payload.title} by: ${payload.name}`)
   });
+
+  socket.on("ask", function(question) {
+    currentQuestion= question
+    io.sockets.emit("ask", currentQuestion)
+    console.log(`Current question : ${question.q}`)
+  })
 
   socket.emit("welcome", {
     title: title,
     audience:audience,
-    speaker: speaker.name
+    speaker: speaker.name,
+    questions:questions,
+    currentQuestion: currentQuestion
   });
 
   connections.push(socket);
