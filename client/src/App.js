@@ -18,8 +18,9 @@ class App extends Component {
     member: {},
     speaker: "",
     audience: [],
-    questions:[],
-    currentQuestion:false 
+    questions: [],
+    choices:[],
+    currentQuestion: false
   };
 
   componentWillMount = () => {
@@ -31,18 +32,21 @@ class App extends Component {
     this.socket.on("audience", this.updateAudience);
     this.socket.on("start", this.start);
     this.socket.on("end", this.updateState);
-    this.socket.on("ask",this.ask )
+    this.socket.on("ask", this.ask);
   };
+
+  componentDidMount(){
+    this.setChoices()
+  }
 
   connect = () => {
     const member = sessionStorage.member
       ? JSON.parse(sessionStorage.member)
       : null;
-
     if (member && member.type === "audience") {
       this.emit("join", member);
-    } else if (member && member.type === "speaker"){
-      this.emit("start", {name: member.name, title: sessionStorage.title})
+    } else if (member && member.type === "speaker") {
+      this.emit("start", { name: member.name, title: sessionStorage.title });
     }
 
     this.setState({ status: "connected" });
@@ -50,7 +54,7 @@ class App extends Component {
   };
 
   updateState = serverState => {
-    console.log(serverState)
+    console.log(serverState);
     this.setState(serverState);
   };
 
@@ -67,19 +71,39 @@ class App extends Component {
     if (this.state.member.type === "speaker") {
       sessionStorage.title = presentation.title;
     }
-    this.setState(presentation)
+    this.setState(presentation);
   };
 
-  ask = question =>{
-    this.setState({currentQuestion:question})
-  }
+  ask = question => {
+    sessionStorage.answer = "";
+    this.setState({ currentQuestion: question }, this.setChoices);
+  };
 
   emit = (eventName, payload) => {
     this.socket.emit(eventName, payload);
   };
 
   disconnect = () => {
-    this.setState({ status: "disconnected", title: "disconnected", speaker: "" });
+    this.setState({
+      status: "disconnected",
+      title: "disconnected",
+      speaker: ""
+    });
+  };
+
+  setChoices = () => {
+    const choices = Object.keys(this.state.currentQuestion);
+    choices.shift();
+    this.setState({ choices: choices, answer: sessionStorage.answer });
+  };
+
+  selectChoice = choice => {
+    sessionStorage.answer = choice;
+    this.setState({ answer: choice });
+    this.emit("answer", {
+      question: this.props.question,
+      choice: choice
+    });
   };
 
   render() {
@@ -91,7 +115,13 @@ class App extends Component {
           <Route
             exact
             path="/"
-            render={props => <Audience emit={this.emit} {...this.state} />}
+            render={props => (
+              <Audience
+                emit={this.emit}
+                selectChoice={this.selectChoice}
+                {...this.state}
+              />
+            )}
           />
           <Route
             exact

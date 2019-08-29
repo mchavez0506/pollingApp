@@ -1,17 +1,24 @@
 import React, { Component } from "react";
 import Display from "./Display";
 import Join from "./Join";
+import Ask from "./Ask";
 
 class Audience extends Component {
   render() {
     return (
-      <div>
+      <div className="container">
         {this.props.member.name ? (
           <React.Fragment>
             <h2>Welcome {this.props.member.name}</h2>
             <p>{`${this.props.audience.length} audience members connected`}</p>
             {this.props.currentQuestion ? (
-              <h2>{this.props.currentQuestion.q}</h2>
+              <Ask
+                emit={this.props.emit}
+                choices={this.props.choices}
+                answer={this.props.answer}
+                selectChoice={this.props.selectChoice}
+                question={this.props.currentQuestion}
+              />
             ) : (
               <p>Questions will appear here</p>
             )}
